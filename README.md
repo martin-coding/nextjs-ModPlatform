@@ -1,21 +1,31 @@
-# Next.js template
+# ModPlatform
 
-This is a Next.js template with shadcn/ui.
+A modern [Next.js](https://nextjs.org) web app to discover mods for your favourite games and upload your own.
 
-## Adding components
+## Project Setup
 
-To add components to your app, run the following command:
+### System Requirements
+
+* [Node.js](https://nodejs.org/) 20.9 or later
+* A package manager such as pnpm, npm, Yarn, or Bun (this guide uses [pnpm](https://pnpm.io/))
+
+### Installation
+
+Install dependencies:
 
 ```bash
-npx shadcn@latest add button
+pnpm install
 ```
 
-This will place the ui components in the `components` directory.
+### Run in Production
 
-## Using components
+```bash
+pnpm build
+pnpm start
+```
 
-To use the components in your app, import them as follows:
+### Run in Development
 
-```tsx
-import { Button } from "@/components/ui/button";
+```bash
+pnpm dev
 ```
