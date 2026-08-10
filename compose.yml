@@ -1,0 +1,16 @@
+services:
+  database:
+    container_name: modplatform-db
+    image: postgres:18.4
+    environment:
+      POSTGRES_USER: modplatform
+      POSTGRES_PASSWORD: C2AwExMC
+      POSTGRES_DB: modplatform
+    volumes:
+      - pgdata:/var/lib/postgresql/
+    ports:
+      - 5432:5432
+    restart: unless-stopped
+
+volumes:
+  pgdata:

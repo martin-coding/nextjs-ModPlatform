@@ -11,16 +11,32 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { PackageIcon, LogOutIcon, SettingsIcon, UserIcon } from "lucide-react"
+import { authClient } from "@/lib/auth-client"
+import { useRouter } from "next/navigation"
+import { User } from "better-auth"
+import { getAvatarInitials } from "@/lib/utils"
 
-export function UserMenu() {
+export function UserMenu({ user }: { user: User }) {
+  const router = useRouter()
+
+  const signOut = async () => {
+    await authClient.signOut({
+      fetchOptions: {
+        onSuccess: () => {
+          router.refresh()
+        },
+      },
+    })
+  }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
         render={
           <Button variant="ghost" size="icon" className="rounded-full">
             <Avatar>
-              <AvatarImage src="/avatar.jpg" alt="shadcn" />
-              <AvatarFallback>CN</AvatarFallback>
+              <AvatarImage src={user.image ?? undefined} alt={user.name} />
+              <AvatarFallback>{getAvatarInitials(user.name)}</AvatarFallback>
             </Avatar>
           </Button>
         }
@@ -42,10 +58,7 @@ export function UserMenu() {
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem
-            variant="destructive"
-            onClick={() => console.log("Sign Out")}
-          >
+          <DropdownMenuItem variant="destructive" onClick={signOut}>
             <LogOutIcon />
             Log out
           </DropdownMenuItem>

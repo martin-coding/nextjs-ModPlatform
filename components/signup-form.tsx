@@ -1,3 +1,5 @@
+"use client"
+
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
@@ -10,16 +12,33 @@ import {
 import {
   Field,
   FieldDescription,
+  FieldError,
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import Link from "next/link"
+import { useActionState } from "react"
+import { createUser } from "@/actions/user/signup"
+import { SignupState } from "@/lib/definitions"
+
+const initialState: SignupState = {
+  values: {
+    name: "",
+    email: "",
+    username: "",
+    password: "",
+    confirmPassword: "",
+  },
+  errors: {},
+}
 
 export function SignupForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+  const [state, formAction, pending] = useActionState(createUser, initialState)
+
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
@@ -30,44 +49,82 @@ export function SignupForm({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form>
+          <form action={formAction}>
             <FieldGroup>
               <Field>
                 <FieldLabel htmlFor="name">Full Name</FieldLabel>
-                <Input id="name" type="text" placeholder="John Doe" required />
+                <Input
+                  id="name"
+                  name="name"
+                  type="text"
+                  autoComplete="name"
+                  defaultValue={state.values.name}
+                  required
+                />
+                <FieldError>{state.errors?.name?.errors}</FieldError>
+              </Field>
+              <Field>
+                <FieldLabel htmlFor="username">Username</FieldLabel>
+                <Input
+                  id="username"
+                  name="username"
+                  type="text"
+                  autoComplete="username"
+                  defaultValue={state.values.username}
+                  required
+                />
+                <FieldError>{state.errors?.username?.errors}</FieldError>
               </Field>
               <Field>
                 <FieldLabel htmlFor="email">Email</FieldLabel>
                 <Input
                   id="email"
+                  name="email"
                   type="email"
-                  placeholder="mail@example.com"
+                  autoComplete="email"
+                  defaultValue={state.values.email}
                   required
                 />
-              </Field>
-              <Field>
-                <FieldLabel htmlFor="name">Username</FieldLabel>
-                <Input id="name" type="text" placeholder="OutlawSun" required />
+                <FieldError>{state.errors?.email?.errors}</FieldError>
               </Field>
               <Field>
                 <Field className="grid grid-cols-2 gap-4">
                   <Field>
                     <FieldLabel htmlFor="password">Password</FieldLabel>
-                    <Input id="password" type="password" required />
+                    <Input
+                      id="password"
+                      name="password"
+                      type="password"
+                      autoComplete="new-password"
+                      defaultValue={state.values.password}
+                      required
+                    />
                   </Field>
                   <Field>
                     <FieldLabel htmlFor="confirm-password">
                       Confirm Password
                     </FieldLabel>
-                    <Input id="confirm-password" type="password" required />
+                    <Input
+                      id="confirm-password"
+                      name="confirmPassword"
+                      type="password"
+                      autoComplete="new-password"
+                      defaultValue={state.values.confirmPassword}
+                      required
+                    />
                   </Field>
                 </Field>
                 <FieldDescription>
                   Must be at least 8 characters long.
                 </FieldDescription>
+                <FieldError>{state.errors?.password?.errors}</FieldError>
+                <FieldError>{state.errors?.confirmPassword?.errors}</FieldError>
               </Field>
+              <FieldError>{state.errors?.general?.errors}</FieldError>
               <Field>
-                <Button type="submit">Create Account</Button>
+                <Button type="submit" disabled={pending}>
+                  {pending ? "Creating Account" : "Create Account"}
+                </Button>
                 <FieldDescription className="text-center">
                   Already have an account? <Link href="/login">Sign in</Link>
                 </FieldDescription>

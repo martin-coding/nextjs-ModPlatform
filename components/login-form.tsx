@@ -1,3 +1,5 @@
+"use client"
+
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
@@ -10,17 +12,54 @@ import {
 import {
   Field,
   FieldDescription,
+  FieldError,
   FieldGroup,
   FieldLabel,
   FieldSeparator,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
+import { authClient } from "@/lib/auth-client"
+import { useState } from "react"
 import Link from "next/link"
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState("")
+
+  const handleSignIn = async (e: React.SubmitEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setError("")
+
+    const formData = new FormData(e.currentTarget)
+    const username = formData.get("username") as string
+    const password = formData.get("password") as string
+
+    await authClient.signIn.username(
+      {
+        username,
+        password,
+        callbackURL: "/",
+      },
+      {
+        onRequest: () => setLoading(true),
+        onSuccess: () => {
+          setLoading(false)
+        },
+        onError: (ctx) => {
+          setLoading(false)
+          setError(ctx.error.message)
+        },
+      }
+    )
+  }
+
+  const signInSocials = async (provider: string) => {
+    await authClient.signIn.social({ provider })
+  }
+
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
@@ -31,10 +70,14 @@ export function LoginForm({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form>
+          <form onSubmit={handleSignIn}>
             <FieldGroup>
               <Field className="grid grid-cols-3 gap-4">
-                <Button variant="outline" type="button">
+                <Button
+                  variant="outline"
+                  type="button"
+                  onClick={() => signInSocials("github")}
+                >
                   <svg
                     role="img"
                     xmlns="http://www.w3.org/2000/svg"
@@ -46,7 +89,11 @@ export function LoginForm({
                   </svg>
                   <span className="sr-only">Sign up with GitHub</span>
                 </Button>
-                <Button variant="outline" type="button">
+                <Button
+                  variant="outline"
+                  type="button"
+                  onClick={() => signInSocials("google")}
+                >
                   <svg
                     role="img"
                     xmlns="http://www.w3.org/2000/svg"
@@ -58,7 +105,11 @@ export function LoginForm({
                   </svg>
                   <span className="sr-only">Sign up with Google</span>
                 </Button>
-                <Button variant="outline" type="button">
+                <Button
+                  variant="outline"
+                  type="button"
+                  onClick={() => signInSocials("discord")}
+                >
                   <svg
                     role="img"
                     xmlns="http://www.w3.org/2000/svg"
@@ -75,23 +126,32 @@ export function LoginForm({
                 Or continue with
               </FieldSeparator>
               <Field>
-                <FieldLabel htmlFor="email">Email</FieldLabel>
-                <Input id="email" type="email" required />
+                <FieldLabel htmlFor="username">Username</FieldLabel>
+                <Input
+                  id="username"
+                  name="username"
+                  type="text"
+                  autoComplete="username"
+                  required
+                />
               </Field>
               <Field>
                 <div className="flex items-center">
                   <FieldLabel htmlFor="password">Password</FieldLabel>
-                  <a
-                    href="#"
+                  <Link
+                    href="/forgot-password"
                     className="ml-auto text-sm underline-offset-4 hover:underline"
                   >
                     Forgot your password?
-                  </a>
+                  </Link>
                 </div>
-                <Input id="password" type="password" required />
+                <Input id="password" name="password" type="password" required />
+                <FieldError>{error}</FieldError>
               </Field>
               <Field>
-                <Button type="submit">Login</Button>
+                <Button type="submit" disabled={loading}>
+                  {loading ? "Loading" : "Login"}
+                </Button>
                 <FieldDescription className="text-center">
                   Don&apos;t have an account?{" "}
                   <Link href="/signup">Sign up</Link>
