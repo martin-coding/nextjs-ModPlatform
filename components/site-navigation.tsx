@@ -27,19 +27,22 @@ export function SiteNavigation() {
   return (
     <NavigationMenu>
       <NavigationMenuList>
-        <NavigationMenuItem className="hidden md:flex">
+        <NavigationMenuItem>
           <NavigationMenuTrigger>Browse</NavigationMenuTrigger>
           <NavigationMenuContent>
-            <div className="flex w-2xl gap-6 p-6">
+            <div className="flex w-2xl gap-6 p-2">
               <div>
                 <h4 className="mb-3 text-sm font-medium text-muted-foreground">
                   Browse
                 </h4>
                 <ul>
                   <ListItem href="/games" title="All Games">
-                    List of every available game.
+                    Discover mods by game.
                   </ListItem>
-                  <ListItem href="/games" title="Trending Mods">
+                  <ListItem href="/mods" title="All Mods">
+                    List of every mod.
+                  </ListItem>
+                  <ListItem href="/mods" title="Trending Mods">
                     Check out the new mod hits.
                   </ListItem>
                 </ul>

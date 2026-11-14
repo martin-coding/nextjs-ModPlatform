@@ -18,13 +18,19 @@ model User {
   email         String
   emailVerified Boolean   @default(false)
   image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
   sessions      Session[]
   accounts      Account[]
 
   username        String?
   displayUsername String?
+
+  bio             String?
+
+  mods     Mod[]
+  images   ModImage[]
+  modLikes ModLike[]
 
   @@unique([email])
   @@map("user")
@@ -77,4 +83,175 @@ model Verification {
 
   @@index([identifier])
   @@map("verification")
+}
+
+model Game {
+  id              String   @id @default(cuid())
+  name            String
+  coverImage      String   @map("cover_image")
+  heroImage       String?  @map("hero_image")
+  iconImage       String?  @map("icon_image")
+  backgroundImage String   @map("background_image")
+  slug            String   @unique
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  categories Category[]
+  mods       Mod[]
+
+  @@map("game")
+}
+
+model Category {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  gameId String @map("game_id")
+  game   Game   @relation(fields: [gameId], references: [id])
+
+  mods Mod[]
+
+  @@unique([gameId, slug])
+  @@map("category")
+}
+
+enum ModStatus {
+  DRAFT
+  PUBLISHED
+}
+
+model Mod {
+  id String @id @default(cuid())
+
+  slug             String  @unique
+  title            String
+  descriptionShort String? @map("description_short")
+  descriptionLong  Json?   @map("description_long")
+
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @default(now()) @updatedAt @map("updated_at")
+  lastReleasedAt DateTime? @map("last_released_at")
+
+  status ModStatus @default(DRAFT)
+
+  likesCount      Int @default(0) @map("likes_count")
+  uniqueDownloads Int @default(0) @map("unique_downloads")
+
+  userId String @map("user_id")
+  user   User   @relation(fields: [userId], references: [id])
+
+  gameId String @map("game_id")
+  game   Game   @relation(fields: [gameId], references: [id])
+
+  categoryId String?   @map("category_id")
+  category   Category? @relation(fields: [categoryId], references: [id])
+
+  images ModImage[]
+  likes  ModLike[]
+
+  tags Tag[] @relation("ModTags")
+
+  versions ModVersion[]
+
+  @@index([userId])
+  @@index([gameId])
+  @@index([categoryId])
+  @@map("mod")
+}
+
+model ModLike {
+  id String @id @default(cuid())
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  modId String @map("mod_id")
+  mod   Mod    @relation(fields: [modId], references: [id], onDelete: Cascade)
+
+  userId String @map("user_id")
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, modId])
+  @@index([modId])
+  @@index([userId])
+  @@map("mod_like")
+}
+
+model ModVersion {
+  id      String    @id @default(cuid())
+  name    String?
+  version String?
+  notes   String?
+  status  ModStatus @default(DRAFT)
+
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @default(now()) @updatedAt
+
+  modId String
+  mod   Mod    @relation(fields: [modId], references: [id])
+
+  files ModFile[]
+
+  @@unique([modId, version])
+  @@index([modId])
+  @@map("mod_version")
+}
+
+enum UploadStatus {
+  PENDING
+  UPLOADING
+  COMPLETED
+  FAILED
+}
+
+model ModFile {
+  id            String       @id @default(uuid()) @db.Uuid
+  storageKey    String       @unique @map("storage_key")
+  name          String
+  size          Int
+  dataType      String?      @map("data_type")
+  type          String       @default("main")
+  status        UploadStatus @default(UPLOADING)
+  downloadCount Int          @default(0) @map("download_count")
+
+  versionId String     @map("version_id")
+  version   ModVersion @relation(fields: [versionId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([versionId])
+  @@map("mod_file")
+}
+
+model ModImage {
+  id         String       @id @default(uuid()) @db.Uuid
+  storageKey String       @unique @map("storage_key")
+  title      String?
+  position   Int
+  size       Int
+  type       String
+  status     UploadStatus @default(PENDING)
+
+  modId String @map("mod_id")
+  mod   Mod    @relation(fields: [modId], references: [id])
+
+  uploadedById String @map("uploaded_by_id")
+  uploadedBy   User   @relation(fields: [uploadedById], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([modId, position])
+  @@index([modId, position])
+  @@index([uploadedById])
+  @@map("mod_image")
+}
+
+model Tag {
+  id   String @id @default(cuid())
+  slug String @unique
+  name String
+
+  mods Mod[] @relation("ModTags")
+  @@map("tag")
 }

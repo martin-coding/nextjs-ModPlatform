@@ -1,3 +1,5 @@
+import { Prisma } from "@/generated/prisma/client"
+
 export type SignupState = {
   errors:
     | {
@@ -41,3 +43,32 @@ export type SignupState = {
     confirmPassword: string
   }
 }
+
+export type GameWithStats = {
+  id: string
+  name: string
+  coverImage: string
+  slug: string
+  createdAt: Date
+
+  modCount: bigint
+  totalDownloads: bigint
+}
+
+export type ModCardMod = Prisma.ModGetPayload<{
+  include: {
+    game: true
+    user: {
+      select: {
+        username: true
+        displayUsername: true
+      }
+    }
+    category: true
+    images: {
+      where: { position: 0 }
+      select: { storageKey: true }
+      take: 1
+    }
+  }
+}>

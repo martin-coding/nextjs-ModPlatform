@@ -35,9 +35,10 @@ export default function Page() {
               </Alert>
               <Alert>
                 <CircleX />
-                <AlertTitle>Didn't get the email?</AlertTitle>
+                <AlertTitle>Didn&apos;t get the email?</AlertTitle>
                 <AlertDescription>
-                  Check your spam or junk folder.
+                  Check your spam or junk folder and if you spelled it
+                  correctly.
                 </AlertDescription>
               </Alert>
               <Alert>

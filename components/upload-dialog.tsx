@@ -35,16 +35,40 @@ import {
 import { Item, ItemContent, ItemTitle } from "@/components/ui/item"
 import { ShareIcon, InfoIcon } from "lucide-react"
 import Image from "next/image"
-
-const games: { title: string; icon: string }[] = []
+import { searchGames } from "@/actions/games"
+import { useEffect, useState } from "react"
 
 export function UploadDialog() {
+  const [games, setGames] = useState<
+    {
+      id: string
+      name: string
+      iconImage: string | null
+    }[]
+  >([])
+
+  const [gameSearch, setGameSearch] = useState("")
+
+  useEffect(() => {
+    const timeout = setTimeout(async () => {
+      if (gameSearch.trim().length < 2) {
+        setGames([])
+        return
+      }
+
+      const results = await searchGames(gameSearch)
+      setGames(results)
+    }, 300)
+
+    return () => clearTimeout(timeout)
+  }, [gameSearch])
+
   return (
     <Dialog>
       <form>
         <DialogTrigger
           render={
-            <Button variant="outline" suppressHydrationWarning>
+            <Button variant="outline">
               <ShareIcon />
               Upload
             </Button>
@@ -106,24 +130,36 @@ export function UploadDialog() {
             </Field>
             <Field>
               <FieldLabel htmlFor="mod-game">Game</FieldLabel>
-              <Combobox id="mod-game" items={games}>
-                <ComboboxInput placeholder="Select a game" />
+
+              <Combobox
+                id="mod-game"
+                items={games}
+                onInputValueChange={setGameSearch}
+              >
+                <ComboboxInput placeholder="Search for a game..." />
+
                 <ComboboxContent>
-                  <ComboboxEmpty>No games found.</ComboboxEmpty>
+                  <ComboboxEmpty>
+                    {gameSearch.length < 2
+                      ? "Type at least 2 characters."
+                      : "No games found."}
+                  </ComboboxEmpty>
+
                   <ComboboxList>
                     {(game) => (
-                      <ComboboxItem key={game.title} value={game.title}>
+                      <ComboboxItem key={game.id} value={game.name}>
                         <Item size="xs" className="p-0">
                           <ItemContent className="flex flex-row items-center">
                             <Image
-                              src={game.icon}
-                              alt={game.title}
+                              src={game?.iconImage ?? "/36x36.png"}
+                              alt={game.name}
                               width={36}
                               height={36}
                               className="rounded-md object-cover"
                             />
+
                             <ItemTitle className="ml-4 whitespace-nowrap">
-                              {game.title}
+                              {game.name}
                             </ItemTitle>
                           </ItemContent>
                         </Item>

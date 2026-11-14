@@ -1,3 +1,5 @@
+"use client"
+
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
@@ -13,7 +15,6 @@ export function SearchDialog() {
           <Button
             variant="outline"
             className="w-72 justify-between text-muted-foreground"
-            suppressHydrationWarning
           >
             <div className="flex items-center gap-2">
               <SearchIcon />

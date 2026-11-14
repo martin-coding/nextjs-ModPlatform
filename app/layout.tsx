@@ -3,6 +3,7 @@ import { Geist_Mono, Inter } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { cn } from "@/lib/utils"
+import { NuqsAdapter } from "nuqs/adapters/next/app"
 import SiteHeader from "@/components/site-header"
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" })
@@ -30,7 +31,9 @@ export default function RootLayout({
     >
       <body>
         <SiteHeader />
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider>
+          <NuqsAdapter>{children}</NuqsAdapter>
+        </ThemeProvider>
       </body>
     </html>
   )

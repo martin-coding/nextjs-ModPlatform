@@ -11,6 +11,23 @@ services:
     ports:
       - 5432:5432
     restart: unless-stopped
+  object-storage:
+    container_name: modplatform-s3
+    image: chrislusf/seaweedfs
+    ports:
+      - 8333:8333 # S3 API
+      - 9333:9333 # master UI
+      - 8888:8888 # filer UI
+    volumes:
+      - s3data:/data
+    environment:
+      AWS_ACCESS_KEY_ID: admin
+      AWS_SECRET_ACCESS_KEY: D5VWbKpZ
+      # S3_BUCKET: mybucket
+    command: server -dir=/data -s3
+    restart: unless-stopped
 
 volumes:
   pgdata:
+  s3data:
+  

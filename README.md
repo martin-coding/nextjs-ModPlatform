@@ -17,6 +17,12 @@ Install dependencies:
 pnpm install
 ```
 
+```bash
+pnpm prisma generate
+```
+
+`.env`
+
 ### Run in Production
 
 ```bash
